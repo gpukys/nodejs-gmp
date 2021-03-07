@@ -1,4 +1,4 @@
-const {Transform} = require('stream');
+import {Transform} from 'stream';
 
 class Reverse extends Transform {
   _transform(data, encoding, callback) {
@@ -6,4 +6,4 @@ class Reverse extends Transform {
   }
 }
 
-module.exports = new Reverse();
+export default new Reverse();

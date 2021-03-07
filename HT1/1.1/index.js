@@ -1,5 +1,5 @@
-const {pipeline} = require('stream');
-const reversePipe = require('./reverse-pipe');
+import {pipeline} from 'stream';
+import reversePipe from './reverse-pipe';
 
 pipeline(
   process.stdin,
