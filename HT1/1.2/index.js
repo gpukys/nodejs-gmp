@@ -3,7 +3,7 @@ import fs from 'fs';
 import { pipeline } from 'stream';
 
 const pathToCsv = './data.csv';
-const pathToResult = './result.json';
+const pathToResult = './result.txt';
 const readStream = fs.createReadStream(pathToCsv);
 const writeStream = fs.createWriteStream(pathToResult);
 
