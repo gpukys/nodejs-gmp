@@ -25,7 +25,6 @@ export function GroupFactory(sequelize: Sequelize): GroupInstance {
   });
 }
 
-console.log(Permission);
 export const newGroupSchema = Joi.object({
   name: Joi.string().required(),
   permissions: Joi.array().required().items(Joi.string().valid(...Object.values(Permission).filter(e => typeof e === 'string')))
@@ -34,4 +33,9 @@ export const newGroupSchema = Joi.object({
 export const patchGroupSchema = Joi.object({
   name: Joi.string(),
   permissions: Joi.array().items(Joi.string().valid(...Object.values(Permission).filter(e => typeof e === 'string')))
+});
+
+export const assignGroupSchema = Joi.object({
+  groupId: Joi.number().required(),
+  userIds: Joi.array().required().items(Joi.number().valid())
 });

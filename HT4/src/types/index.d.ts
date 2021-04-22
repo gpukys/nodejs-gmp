@@ -1,4 +1,4 @@
-import { BuildOptions, Model, Optional } from "sequelize";
+import { BuildOptions, HasManyAddAssociationMixin, Model, Optional } from "sequelize";
 import { Permission } from "../models/group.model";
 
 export interface UserAttributes {
@@ -27,7 +27,9 @@ export interface GroupAttributes {
 }
 export interface GroupCreateAttributes extends Optional<GroupAttributes, "id"> { }
 export interface GroupPatchAttributes extends Optional<GroupAttributes, "id" | "name" | "permissions"> { }
-export interface GroupModel extends Model<GroupCreateAttributes>, GroupAttributes { }
+export interface GroupModel extends Model<GroupCreateAttributes>, GroupAttributes {
+  addUser: HasManyAddAssociationMixin<UserModel, number>;
+}
 export class Group extends Model<GroupModel, GroupAttributes> { }
 export type GroupInstance = typeof Model & {
   new(values?: object, options?: BuildOptions): GroupModel;

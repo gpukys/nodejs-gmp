@@ -12,5 +12,10 @@ export const db = new Sequelize('postgres://kdpvnzotxlfury:7cc0950893756a14f0cdf
   }
 });
 
-export const User = UserFactory(db);
-export const Group = GroupFactory(db);
+const User = UserFactory(db);
+const Group = GroupFactory(db);
+
+User.belongsToMany(Group, { through: 'UserGroup', onDelete: 'CASCADE' });
+Group.belongsToMany(User, { through: 'UserGroup', onDelete: 'CASCADE' });
+
+export { User, Group };

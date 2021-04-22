@@ -1,12 +1,16 @@
-import { Op } from "sequelize";
-import { FindOptions } from "sequelize";
-import { GroupCreateAttributes, GroupInstance, GroupModel, GroupPatchAttributes } from "../types";
+import { Sequelize } from "sequelize";
+import { User } from "../models";
+import { GroupCreateAttributes, GroupInstance, GroupModel, GroupPatchAttributes, UserInstance } from "../types";
 
 class GroupService {
   private groupModel: GroupInstance;
+  private userModel: UserInstance;
+  private sequelize: Sequelize;
 
-  constructor(groupModel: GroupInstance) {
+  constructor(groupModel: GroupInstance, userModel: UserInstance, sequelize: Sequelize) {
     this.groupModel = groupModel;
+    this.userModel = userModel;
+    this.sequelize = sequelize;
   }
 
   getGroups(): Promise<GroupModel[]> {
@@ -33,6 +37,27 @@ class GroupService {
     return this.groupModel.destroy({ where: { id }, force: true })
       .then(e => ({ success: true, errors: [] }))
       .catch(err => ({ success: false, errors: err.errors }));
+  }
+
+  async addUsersToGroup(groupId: number, userIds: number[]): Promise<{ success: boolean, errors: { message: string }[] }> {
+    const transaction = await this.sequelize.transaction();
+    try {
+      const users = await this.userModel.findAll({ where: { id: userIds }, transaction });
+      if (!users || users.length === 0) {
+        throw [{ message: 'No users would be affected' }];
+      }
+      const group = await this.groupModel.findByPk(groupId, { transaction });
+      if (!group) {
+        throw [{ message: 'Group not found' }];
+      }
+      await Promise.all(users.map(e => group.addUser(e, { transaction })));
+
+      await transaction.commit();
+      return { success: true, errors: [] };
+    } catch (e) {
+      await transaction.rollback();
+      return { success: false, errors: e };
+    }
   }
 }
 

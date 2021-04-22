@@ -1,11 +1,11 @@
 import express from "express";
 import { createValidator } from "express-joi-validation";
-import { Group } from "../models";
-import { newGroupSchema, patchGroupSchema } from "../models/group.model";
+import { db, Group, User } from "../models";
+import { assignGroupSchema, newGroupSchema, patchGroupSchema } from "../models/group.model";
 import GroupService from "../services/group.service";
 
 const validator = createValidator({});
-const groupService = new GroupService(Group);
+const groupService = new GroupService(Group, User, db);
 const GroupController = express.Router();
 
 
@@ -104,6 +104,23 @@ GroupController.delete('/:id', async (req, res) => {
       res.status(400).end('ID must be an integer');
     }
   } catch {
+    res.status(500).end('Internal error');
+  }
+});
+
+/* POST new group. */
+GroupController.post('/assign', validator.body(assignGroupSchema), async (req, res) => {
+  try {
+    const { groupId, userIds } = req.body;
+    const response = await groupService.addUsersToGroup(groupId, userIds);
+    if (response.success) {
+      res.status(200).json({
+        message: 'Assigned successfully'
+      });
+    } else {
+      res.status(400).json({ message: response.errors.map(e => e.message).join() });
+    }
+  } catch (e) {
     res.status(500).end('Internal error');
   }
 });
