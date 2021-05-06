@@ -10,17 +10,17 @@ const GroupController = express.Router();
 
 
 /* GET groups listing. */
-GroupController.get('/', async (req, res) => {
+GroupController.get('/', async (req, res, next) => {
   try {
     const groups = await groupService.getGroups();
     res.json(groups);
-  } catch {
-    res.status(500).end('Internal error');
+  } catch (e) {
+    next(e);
   }
 });
 
 /* GET group by ID. */
-GroupController.get('/:id', async (req, res) => {
+GroupController.get('/:id', async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -33,13 +33,13 @@ GroupController.get('/:id', async (req, res) => {
     } else {
       res.status(400).end('ID must be an integer');
     }
-  } catch {
-    res.status(500).end('Internal error');
+  } catch (e) {
+    next(e);
   }
 });
 
 /* POST new group. */
-GroupController.post('/', validator.body(newGroupSchema), async (req, res) => {
+GroupController.post('/', validator.body(newGroupSchema), async (req, res, next) => {
   try {
     const { name, permissions } = req.body;
     const response = await groupService.createNew({ name, permissions });
@@ -52,12 +52,12 @@ GroupController.post('/', validator.body(newGroupSchema), async (req, res) => {
       res.status(400).json({ message: response.errors.map(e => e.message).join() });
     }
   } catch (e) {
-    res.status(500).end('Internal error');
+    next(e);
   }
 });
 
 /* Patch group. */
-GroupController.patch('/:id', validator.body(patchGroupSchema), async (req, res) => {
+GroupController.patch('/:id', validator.body(patchGroupSchema), async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -78,13 +78,13 @@ GroupController.patch('/:id', validator.body(patchGroupSchema), async (req, res)
     } else {
       res.status(400).end('ID must be an integer');
     }
-  } catch {
-    res.status(500).end('Internal error');
+  } catch (e) {
+    next(e);
   }
 });
 
 /* Hard delete group. */
-GroupController.delete('/:id', async (req, res) => {
+GroupController.delete('/:id', async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -103,13 +103,13 @@ GroupController.delete('/:id', async (req, res) => {
     } else {
       res.status(400).end('ID must be an integer');
     }
-  } catch {
-    res.status(500).end('Internal error');
+  } catch (e) {
+    next(e);
   }
 });
 
 /* POST new group. */
-GroupController.post('/assign', validator.body(assignGroupSchema), async (req, res) => {
+GroupController.post('/assign', validator.body(assignGroupSchema), async (req, res, next) => {
   try {
     const { groupId, userIds } = req.body;
     const response = await groupService.addUsersToGroup(groupId, userIds);
@@ -121,7 +121,7 @@ GroupController.post('/assign', validator.body(assignGroupSchema), async (req, r
       res.status(400).json({ message: response.errors.map(e => e.message).join() });
     }
   } catch (e) {
-    res.status(500).end('Internal error');
+    next(e);
   }
 });
 
