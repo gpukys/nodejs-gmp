@@ -48,3 +48,8 @@ export const userQuerySchema = Joi.object({
   limit: Joi.number(),
   loginSubstring: Joi.string()
 });
+
+export const loginSchema = Joi.object({
+  login: Joi.string().required(),
+  password: Joi.string().alphanum().required()
+});
