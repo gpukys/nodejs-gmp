@@ -45,7 +45,7 @@ export const patchUserSchema = Joi.object({
 });
 
 export const userQuerySchema = Joi.object({
-  limit: Joi.number(),
+  limit: Joi.number().min(1),
   loginSubstring: Joi.string()
 });
 

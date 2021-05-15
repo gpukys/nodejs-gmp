@@ -44,7 +44,7 @@ UserController.get('/:id', authenticate, async (req, res, next) => {
 UserController.post('/', authenticate, validator.body(newUserSchema), async (req, res, next) => {
   try {
     const { login, password, age } = req.body;
-    const response = await userService.createNew({ login, password, age });
+    const response = await userService.createNew({ login, password, age: parseInt(age, 10) });
     if (response.success) {
       res.status(201).json({
         message: 'Created successfully',
