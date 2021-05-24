@@ -3,6 +3,7 @@ import { newUserSchema, patchUserSchema, userQuerySchema } from "../models/user.
 import { createValidator } from 'express-joi-validation';
 import UserService from "../services/user.service";
 import { User } from "../models";
+import { authenticate } from "../middlewares/authenticate";
 
 const validator = createValidator({});
 const userService = new UserService(User);
@@ -10,7 +11,7 @@ const UserController = express.Router();
 
 
 /* GET users listing. */
-UserController.get('/', validator.query(userQuerySchema), async (req, res, next) => {
+UserController.get('/', authenticate, validator.query(userQuerySchema), async (req, res, next) => {
   try {
     const { loginSubstring, limit } = req.query || {};
     const users = await userService.getUsers(loginSubstring as string, (limit && parseInt(limit as string, 10)) || undefined);
@@ -21,7 +22,7 @@ UserController.get('/', validator.query(userQuerySchema), async (req, res, next)
 });
 
 /* GET user by ID. */
-UserController.get('/:id', async (req, res, next) => {
+UserController.get('/:id', authenticate, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -40,7 +41,7 @@ UserController.get('/:id', async (req, res, next) => {
 });
 
 /* POST new user. */
-UserController.post('/', validator.body(newUserSchema), async (req, res, next) => {
+UserController.post('/', authenticate, validator.body(newUserSchema), async (req, res, next) => {
   try {
     const { login, password, age } = req.body;
     const response = await userService.createNew({ login, password, age });
@@ -58,7 +59,7 @@ UserController.post('/', validator.body(newUserSchema), async (req, res, next) =
 });
 
 /* Patch user. */
-UserController.patch('/:id', validator.body(patchUserSchema), async (req, res, next) => {
+UserController.patch('/:id', authenticate, validator.body(patchUserSchema), async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -85,7 +86,7 @@ UserController.patch('/:id', validator.body(patchUserSchema), async (req, res, n
 });
 
 /* Soft delete user. */
-UserController.delete('/:id', async (req, res, next) => {
+UserController.delete('/:id', authenticate, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {

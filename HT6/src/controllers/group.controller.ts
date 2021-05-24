@@ -1,5 +1,6 @@
 import express from "express";
 import { createValidator } from "express-joi-validation";
+import { authenticate } from "../middlewares/authenticate";
 import { db, Group, User } from "../models";
 import { assignGroupSchema, newGroupSchema, patchGroupSchema } from "../models/group.model";
 import GroupService from "../services/group.service";
@@ -10,7 +11,7 @@ const GroupController = express.Router();
 
 
 /* GET groups listing. */
-GroupController.get('/', async (req, res, next) => {
+GroupController.get('/', authenticate, async (req, res, next) => {
   try {
     const groups = await groupService.getGroups();
     res.json(groups);
@@ -20,7 +21,7 @@ GroupController.get('/', async (req, res, next) => {
 });
 
 /* GET group by ID. */
-GroupController.get('/:id', async (req, res, next) => {
+GroupController.get('/:id', authenticate, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -39,7 +40,7 @@ GroupController.get('/:id', async (req, res, next) => {
 });
 
 /* POST new group. */
-GroupController.post('/', validator.body(newGroupSchema), async (req, res, next) => {
+GroupController.post('/', authenticate, validator.body(newGroupSchema), async (req, res, next) => {
   try {
     const { name, permissions } = req.body;
     const response = await groupService.createNew({ name, permissions });
@@ -57,7 +58,7 @@ GroupController.post('/', validator.body(newGroupSchema), async (req, res, next)
 });
 
 /* Patch group. */
-GroupController.patch('/:id', validator.body(patchGroupSchema), async (req, res, next) => {
+GroupController.patch('/:id', authenticate, validator.body(patchGroupSchema), async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -84,7 +85,7 @@ GroupController.patch('/:id', validator.body(patchGroupSchema), async (req, res,
 });
 
 /* Hard delete group. */
-GroupController.delete('/:id', async (req, res, next) => {
+GroupController.delete('/:id', authenticate, async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (!isNaN(id)) {
@@ -109,7 +110,7 @@ GroupController.delete('/:id', async (req, res, next) => {
 });
 
 /* POST new group. */
-GroupController.post('/assign', validator.body(assignGroupSchema), async (req, res, next) => {
+GroupController.post('/assign', authenticate, validator.body(assignGroupSchema), async (req, res, next) => {
   try {
     const { groupId, userIds } = req.body;
     const response = await groupService.addUsersToGroup(groupId, userIds);
