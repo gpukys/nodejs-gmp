@@ -1,28 +1,18 @@
+import dotenv from 'dotenv';
+dotenv.config();
 import express from "express";
-import AuthController from "./controllers/auth.controller";
-import GroupController from "./controllers/group.controller";
-import UserController from "./controllers/user.controller";
-import { errorHandler } from "./middlewares/errorHandler";
-import { perfMonitor } from "./middlewares/performance";
 import { db } from "./models";
 import logger from "./services/logger.service";
-import cors from 'cors';
+import { setup } from "./utils/setup";
 
 (async function () {
   try {
     await db.sync();
     console.log('Database connection successful');
     const app = express();
-    app.use(cors());
-    app.use(perfMonitor);
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: false }));
-    app.use('/users', UserController);
-    app.use('/groups', GroupController);
-    app.use('/auth', AuthController);
-    app.use(errorHandler);
+    setup(app);
 
-    app.listen(3000, () => {
+    app.listen(process.env.PORT || 3000, () => {
       console.log('Server listening on port 3000');
     });
     process.on('uncaughtException', error => {
